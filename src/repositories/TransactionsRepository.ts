@@ -24,20 +24,20 @@ class TransactionsRepository {
   }
 
   public getBalance(): Balance {
-    let income = 0;
-    let outcome = 0;
-    let total = 0;
-
-    this.transactions.forEach(t => {
-      if (t.type === 'income') {
-        income += t.value;
-      } else {
-        outcome += t.value;
-        total -= t.value;
+    const income = this.transactions.reduce((next, transaction) => {
+      if (transaction.type === 'income') {
+        return next + transaction.value;
       }
-    });
-    total = income - outcome;
-    return { income, outcome, total };
+      return next;
+    }, 0);
+    const total = income;
+    const outcome = this.transactions.reduce((next, transaction) => {
+      if (transaction.type === 'outcome') {
+        return next + transaction.value;
+      }
+      return next;
+    }, 0);
+    return { income, outcome, total: total - outcome } as Balance;
   }
 
   public create({ title, value, type }: TransactionDTO): Transaction {
